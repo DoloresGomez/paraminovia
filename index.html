@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Para Ti ❤️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 20px 10px;
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      background-size: 400% 400%;
+      background-attachment: fixed;
+      animation: gradientMove 12s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-y: auto;
+      overflow-x: hidden;
+      color: white;
+      text-align: center;
+      position: relative;
+    }
+
+    #particleCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(15px);
+      border-radius: 25px;
+      padding: 40px 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+      max-width: 420px;
+      width: 100%;
+      animation: fadeIn 1.5s ease;
+      margin: auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #fff, #ffe0e9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulse 2s infinite;
+    }
+
+    h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      margin-top: 15px;
+    }
+
+    p {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    button {
+      background: linear-gradient(135deg, #ff4d6d, #ff758f);
+      border: none;
+      border-radius: 40px;
+      padding: 14px 30px;
+      font-size: 1em;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.08);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+    }
+
+    .hidden {
+      display: none;
+      margin-top: 20px;
+      font-size: 1.2em;
+      animation: fadeIn 1.5s ease;
+    }
+
+    .mensaje-box {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      font-size: 1.15em;
+      line-height: 1.6;
+      animation: fadeIn 1s ease;
+    }
+
+    .music-control {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, #ff4d6d, #ff758f);
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 1.5em;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+
+    .music-control:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    }
+
+    .music-control.playing {
+      animation: musicPulse 1s infinite;
+    }
+
+    @keyframes musicPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .foto {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+      animation: fadeIn 2s ease;
+    }
+
+    .game {
+      margin-top: 25px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255, 0, 100, 0.3);
+    }
+
+    .game input {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      width: 60px;
+      text-align: center;
+      margin-right: 10px;
+      font-size: 1em;
+    }
+
+    .resultado {
+      margin-top: 15px;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    /* Juego de memoria MEJORADO */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+      padding: 5px;
+    }
+
+    .memory-card {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 15px;
+      padding: 0;
+      font-size: 2em;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transform-style: preserve-3d;
+    }
+
+    .memory-card:hover:not(.matched) {
+      transform: scale(1.05) translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 100, 150, 0.4);
+      border-color: rgba(255, 182, 193, 0.8);
+    }
+
+    .memory-card:active {
+      transform: scale(0.98);
+    }
+
+    .memory-card.flipped {
+      background: linear-gradient(135deg, rgba(255, 150, 180, 0.6), rgba(255, 100, 150, 0.4));
+      border-color: rgba(255, 182, 193, 1);
+      transform: rotateY(180deg);
+    }
+
+    .memory-card.matched {
+      background: linear-gradient(135deg, rgba(100, 255, 150, 0.4), rgba(150, 255, 180, 0.3));
+      border-color: rgba(150, 255, 180, 0.8);
+      cursor: default;
+      animation: matchPulse 0.6s ease;
+    }
+
+    @keyframes matchPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    @keyframes cardFlip {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(180deg); }
+    }
+
+    .pregunta-box {
+      background: rgba(255, 200, 220, 0.2);
+      padding: 15px;
+      border-radius: 15px;
+      margin-top: 15px;
+      font-size: 1.05em;
+      line-height: 1.6;
+    }
+
+    .memoria-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      font-size: 0.95em;
+      color: #ffe0e9;
+    }
+
+    .memoria-stats span {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 15px;
+      border-radius: 20px;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2em;
+      }
+      
+      h3 {
+        font-size: 1.1em;
+      }
+      
+      p {
+        font-size: 1em;
+      }
+      
+      .card {
+        padding: 30px 20px;
+      }
+      
+      button {
+        padding: 12px 25px;
+        font-size: 0.95em;
+      }
+
+      .mensaje-box {
+        font-size: 1.05em;
+      }
+
+      .music-control {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2em;
+      }
+
+      .memory-grid {
+        gap: 10px;
+        padding: 3px;
+      }
+
+      .memory-card {
+        font-size: 1.6em;
+        border-radius: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="particleCanvas"></canvas>
+
+  <audio id="bgMusic" loop>
+    <source src="Me Gustas.mp3" type="audio/mpeg">
+    Tu navegador no soporta el elemento de audio.
+  </audio>
+
+  <button class="music-control" id="musicBtn" onclick="toggleMusic()">
+    🎵
+  </button>
+
+  <div class="card">
+    <img src="foto.jpg" alt="Nuestra foto" class="foto">
+    <h1>Te quiero Jocelin❤️</h1>
+    <p>
+      Desde que llegaste a mi vida, todo es más bonito.
+      Cada sonrisa tuya ilumina mis días.
+    </p>
+    <button onclick="iniciarExperiencia()">Presiona aquí 💕</button>
+
+    <div id="mensaje" class="hidden"></div>
+
+    <div class="game">
+      <h3>💖 Adivina el número 💖</h3>
+      <p>Del 1 al 5</p>
+      <input type="number" id="numero" min="1" max="5" placeholder="?" />
+      <button onclick="jugar()">Intentar 💕</button>
+      <p id="resultado" class="resultado"></p>
+    </div>
+
+    <div class="game">
+      <h3>🧠 Memoria del amor 🧠</h3>
+      <p>Encuentra las parejas de corazones</p>
+      <button onclick="iniciarMemoria()">Nuevo juego 🎮</button>
+      <div class="memoria-stats">
+        <span id="movimientos">Movimientos: 0</span>
+        <span id="parejas">Parejas: 0/8</span>
+      </div>
+      <div id="memoriaGrid" class="memory-grid"></div>
+      <p id="memoriaResultado" class="resultado"></p>
+    </div>
+
+    <div class="game">
+      <h3>💭 Pregunta del día 💭</h3>
+      <button onclick="nuevaPregunta()">Nueva pregunta 💕</button>
+      <div id="preguntaBox" class="pregunta-box"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const numeroCorrecto = 3;
+    let contadorMensajes = 0;
+    const musica = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+    let musicaReproduciendo = false;
+
+    let memoryCards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let movimientos = 0;
+
+    const mensajesAmor = [
+      "💕 Eres lo más importante para mí 💕",
+      "✨ Cada día contigo es un regalo ✨",
+      "💖 Tu sonrisa ilumina mi mundo 💖",
+      "🌟 Eres mi persona favorita 🌟",
+      "💝 Contigo todo es mejor 💝",
+      "🌹 Eres mi felicidad 🌹",
+      "💫 Me haces sentir especial cada día 💫",
+      "❤️ No imagino mi vida sin ti ❤️",
+      "🦋 Eres mi sueño hecho realidad 🦋",
+      "💗 Cada momento a tu lado vale oro 💗",
+      "🌺 Tu amor me da fuerzas 🌺",
+      "💘 Eres la razón de mi sonrisa 💘",
+      "🌈 Contigo la vida es más colorida 🌈",
+      "💞 Te amo más cada día 💞",
+      "⭐ Eres mi estrella brillante ⭐"
+    ];
+
+    const preguntasRomanticas = [
+      "¿Cuál fue el momento en que supiste que me amabas?",
+      "¿Qué es lo que más te gusta de nuestra relación?",
+      "¿Cuál es tu recuerdo favorito conmigo?",
+      "Si pudieras revivir un día juntos, ¿cuál sería?",
+      "¿Qué te hace sonreír cuando piensas en mí?",
+      "¿Cuál es tu sueño más grande para nosotros?",
+      "¿Qué canción te recuerda a mí y por qué?",
+      "¿Cuál fue nuestra cita más memorable?",
+      "¿Qué es lo primero que notaste de mí?",
+      "¿Cómo imaginas nuestro futuro juntos?",
+      "¿Qué aventura te gustaría vivir conmigo?",
+      "¿Cuál es la cualidad que más admiras de mí?",
+      "¿Qué pequeña cosa hago que te hace feliz?",
+      "Si escribieras un libro sobre nosotros, ¿cuál sería el título?",
+      "¿Qué es lo que más extrañas cuando no estamos juntos?"
+    ];
+
+    // Sistema de partículas
+    class ParticleSystem {
+      constructor() {
+        this.canvas = document.getElementById('particleCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.particleCount = 50;
+        this.mouse = { x: null, y: null, radius: 150 };
+        
+        this.resize();
+        this.init();
+        this.animate();
+        
+        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('mousemove', (e) => {
+          this.mouse.x = e.x;
+          this.mouse.y = e.y;
+        });
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      init() {
+        this.particles = [];
+        for (let i = 0; i < this.particleCount; i++) {
+          this.particles.push(new Particle(this.canvas.width, this.canvas.height));
+        }
+      }
+
+      animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.particles.forEach((particle, index) => {
+          particle.update(this.mouse);
+          particle.draw(this.ctx);
+          
+          for (let j = index + 1; j < this.particles.length; j++) {
+            const dx = particle.x - this.particles[j].x;
+            const dy = particle.y - this.particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 100) {
+              this.ctx.beginPath();
+              this.ctx.strokeStyle = `rgba(255, 182, 193, ${0.2 - distance / 500})`;
+              this.ctx.lineWidth = 1;
+              this.ctx.moveTo(particle.x, particle.y);
+              this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
+              this.ctx.stroke();
+            }
+          }
+        });
+        
+        requestAnimationFrame(() => this.animate());
+      }
+    }
+
+    class Particle {
+      constructor(canvasWidth, canvasHeight) {
+        this.x = Math.random() * canvasWidth;
+        this.y = Math.random() * canvasHeight;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
+        this.color = this.getRandomColor();
+      }
+
+      getRandomColor() {
+        const colors = [
+          'rgba(255, 182, 193, 0.8)',
+          'rgba(255, 105, 180, 0.8)',
+          'rgba(255, 255, 255, 0.6)',
+          'rgba(255, 192, 203, 0.8)',
+          'rgba(255, 160, 200, 0.7)'
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      update(mouse) {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (mouse.x && mouse.y) {
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < mouse.radius) {
+            const forceX = dx / distance;
+            const forceY = dy / distance;
+            const force = (mouse.radius - distance) / mouse.radius;
+            
+            this.x -= forceX * force * 3;
+            this.y -= forceY * force * 3;
+          }
+        }
+
+        if (this.x < 0 || this.x > this.canvasWidth) this.speedX *= -1;
+        if (this.y < 0 || this.y > this.canvasHeight) this.speedY *= -1;
+        
+        this.x = Math.max(0, Math.min(this.canvasWidth, this.x));
+        this.y = Math.max(0, Math.min(this.canvasHeight, this.y));
+      }
+
+      draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    const particleSystem = new ParticleSystem();
+
+    function toggleMusic() {
+      if (musicaReproduciendo) {
+        musica.pause();
+        musicBtn.innerHTML = '🎵';
+        musicBtn.classList.remove('playing');
+        musicaReproduciendo = false;
+      } else {
+        musica.play();
+        musicBtn.innerHTML = '🔊';
+        musicBtn.classList.add('playing');
+        musicaReproduciendo = true;
+      }
+    }
+
+    function iniciarExperiencia() {
+      const mensaje = document.getElementById('mensaje');
+      mensaje.classList.remove('hidden');
+      
+      const mensajeAleatorio = mensajesAmor[Math.floor(Math.random() * mensajesAmor.length)];
+      mensaje.innerHTML = `<div class="mensaje-box">${mensajeAleatorio}</div>`;
+      crearCorazonesEspeciales();
+      
+      contadorMensajes++;
+      
+      if (contadorMensajes % 5 === 0) {
+        setTimeout(() => {
+          mensaje.innerHTML += `<div class="mensaje-box">🎉 ¡Ya presionaste ${contadorMensajes} veces! 🎉<br>¡Eso es mucho amor! 😍</div>`;
+        }, 1500);
+      }
+    }
+
+    function jugar() {
+      const numero = parseInt(document.getElementById('numero').value);
+      const resultado = document.getElementById('resultado');
+      resultado.style.display = 'block';
+
+      if (isNaN(numero)) {
+        resultado.innerHTML = "⚠️ Por favor ingresa un número";
+        return;
+      }
+
+      if (numero === numeroCorrecto) {
+        resultado.innerHTML = "🎉 ¡Felicidades! Ganaste un beso 😘💋";
+        crearCorazonesEspeciales();
+      } else if (numero < numeroCorrecto) {
+        resultado.innerHTML = "📈 Más alto... intenta otra vez 💕";
+      } else {
+        resultado.innerHTML = "📉 Más bajo... intenta otra vez 💕";
+      }
+    }
+
+    function iniciarMemoria() {
+      const emojis = ['❤️', '💕', '💖', '💗', '💘', '💝', '💞', '💓'];
+      memoryCards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+      flippedCards = [];
+      matchedPairs = 0;
+      movimientos = 0;
+      
+      document.getElementById('movimientos').textContent = 'Movimientos: 0';
+      document.getElementById('parejas').textContent = 'Parejas: 0/8';
+      
+      const grid = document.getElementById('memoriaGrid');
+      grid.innerHTML = '';
+      document.getElementById('memoriaResultado').innerHTML = '';
+      
+      memoryCards.forEach((emoji, index) => {
+        const card = document.createElement('button');
+        card.className = 'memory-card';
+        card.innerHTML = '?';
+        card.dataset.emoji = emoji;
+        card.dataset.index = index;
+        card.onclick = () => flipCard(card);
+        grid.appendChild(card);
+      });
+    }
+
+    function flipCard(card) {
+      if (flippedCards.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) {
+        return;
+      }
+
+      card.innerHTML = card.dataset.emoji;
+      card.classList.add('flipped');
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        movimientos++;
+        document.getElementById('movimientos').textContent = `Movimientos: ${movimientos}`;
+        setTimeout(checkMatch, 800);
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+      
+      if (card1.dataset.emoji === card2.dataset.emoji) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+        matchedPairs++;
+        
+        document.getElementById('parejas').textContent = `Parejas: ${matchedPairs}/8`;
+        
+        if (matchedPairs === 8) {
+          setTimeout(() => {
+            document.getElementById('memoriaResultado').innerHTML = `🎉 ¡Ganaste en ${movimientos} movimientos! 🎉`;
+            crearCorazonesEspeciales();
+          }, 500);
+        }
+      } else {
+        card1.innerHTML = '?';
+        card2.innerHTML = '?';
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+      }
+      
+      flippedCards = [];
+    }
+
+    function nuevaPregunta() {
+      const pregunta = preguntasRomanticas[Math.floor(Math.random() * preguntasRomanticas.length)];
+      document.getElementById('preguntaBox').innerHTML = `💭 ${pregunta}`;
+    }
+
+    function crearCorazonesEspeciales() {
+      for (let i = 0; i < 25; i++) {
+        const heart = document.createElement('div');
+        heart.style.position = 'fixed';
+        heart.style.fontSize = '22px';
+        heart.style.color = 'rgba(255,255,255,0.85)';
+        heart.style.userSelect = 'none';
+        heart.style.pointerEvents = 'none';
+        heart.style.zIndex = '9999';
+        heart.innerHTML = '❤️';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animation = `floatUp ${Math.random() * 2 + 3}s linear`;
+        document.body.appendChild(heart);
+
+        setTimeout(() => heart.remove(), 5000);
+      }
+    }
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes floatUp {
+        from {
+          transform: translateY(100vh) scale(1);
+          opacity: 1;
+        }
+        to {
+          transform: translateY(-10vh) scale(1.6);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+
+</body>
+</html>
