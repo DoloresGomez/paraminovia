@@ -189,7 +189,6 @@
       font-weight: bold;
     }
 
-    /* Juego de memoria MEJORADO */
     .memory-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -243,11 +242,6 @@
       50% { transform: scale(1.1); }
     }
 
-    @keyframes cardFlip {
-      0% { transform: rotateY(0); }
-      100% { transform: rotateY(180deg); }
-    }
-
     .pregunta-box {
       background: rgba(255, 200, 220, 0.2);
       padding: 15px;
@@ -269,6 +263,62 @@
       background: rgba(255, 255, 255, 0.2);
       padding: 8px 15px;
       border-radius: 20px;
+    }
+
+    .respuesta-input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1em;
+      margin-top: 10px;
+      font-family: 'Segoe UI', sans-serif;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .respuesta-input:focus {
+      outline: none;
+      border-color: rgba(255, 100, 150, 0.8);
+      box-shadow: 0 0 10px rgba(255, 100, 150, 0.3);
+    }
+
+    .form-pregunta {
+      margin-bottom: 20px;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(26, 26, 46, 0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      flex-direction: column;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-top: 4px solid #ff4d6d;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     @media (max-width: 480px) {
@@ -314,12 +364,22 @@
         font-size: 1.6em;
         border-radius: 12px;
       }
+
+      .respuesta-input {
+        font-size: 0.95em;
+      }
     }
   </style>
 </head>
 <body>
 
   <canvas id="particleCanvas"></canvas>
+
+  <!-- Overlay de carga -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div style="font-size: 1.3em; color: #ffe0e9;">Procesando... 💕</div>
+  </div>
 
   <audio id="bgMusic" loop>
     <source src="Me Gustas.mp3" type="audio/mpeg">
@@ -332,7 +392,7 @@
 
   <div class="card">
     <img src="foto.jpg" alt="Nuestra foto" class="foto">
-    <h1>Te quiero Jocelin❤️</h1>
+    <h1>Te quiero ❤️</h1>
     <p>
       Desde que llegaste a mi vida, todo es más bonito.
       Cada sonrisa tuya ilumina mis días.
@@ -362,9 +422,54 @@
     </div>
 
     <div class="game">
-      <h3>💭 Pregunta del día 💭</h3>
-      <button onclick="nuevaPregunta()">Nueva pregunta 💕</button>
-      <div id="preguntaBox" class="pregunta-box"></div>
+      <h3>💭 Responde estas preguntas 💭</h3>
+      <p>Me encantaría conocer tus pensamientos 💕</p>
+      
+      <form id="preguntasForm" onsubmit="enviarRespuestas(event)">
+        
+        <div class="form-pregunta">
+          <div class="pregunta-box">
+            💭 ¿Por qué entre tantas personas me elegiste a mí?
+          </div>
+          <textarea class="respuesta-input" id="pregunta1" name="Pregunta_1" placeholder="Escribe tu respuesta aquí..." required></textarea>
+        </div>
+
+        <div class="form-pregunta">
+          <div class="pregunta-box">
+            💭 ¿Qué es lo que más te gusta de nuestra relación?
+          </div>
+          <textarea class="respuesta-input" id="pregunta2" name="Pregunta_2" placeholder="Escribe tu respuesta aquí..." required></textarea>
+        </div>
+
+        <div class="form-pregunta">
+          <div class="pregunta-box">
+            💭 ¿Cuál es tu recuerdo favorito conmigo?
+          </div>
+          <textarea class="respuesta-input" id="pregunta3" name="Pregunta_3" placeholder="Escribe tu respuesta aquí..." required></textarea>
+        </div>
+
+        <div class="form-pregunta">
+          <div class="pregunta-box">
+            💭 ¿Qué te hace sonreír cuando piensas en mí?
+          </div>
+          <textarea class="respuesta-input" id="pregunta4" name="Pregunta_4" placeholder="Escribe tu respuesta aquí..." required></textarea>
+        </div>
+
+        <div class="form-pregunta">
+          <div class="pregunta-box">
+            💭 Si pudieras cambiar algo de mi forma de ser contigo, ¿qué sería y por qué?
+          </div>
+          <textarea class="respuesta-input" id="pregunta5" name="Pregunta_5" placeholder="Escribe tu respuesta aquí..." required></textarea>
+        </div>
+
+        <button type="submit">Guardar mis pensamientos 💌</button>
+      </form>
+
+      <div id="mensajeGracias" style="display:none;" class="mensaje-box">
+        💕 Gracias por compartir tus pensamientos conmigo 💕
+        <br><br>
+        Cada palabra tuya significa el mundo para mí ✨
+      </div>
     </div>
 
   </div>
@@ -399,23 +504,58 @@
       "⭐ Eres mi estrella brillante ⭐"
     ];
 
-    const preguntasRomanticas = [
-      "¿Cuál fue el momento en que supiste que me amabas?",
-      "¿Qué es lo que más te gusta de nuestra relación?",
-      "¿Cuál es tu recuerdo favorito conmigo?",
-      "Si pudieras revivir un día juntos, ¿cuál sería?",
-      "¿Qué te hace sonreír cuando piensas en mí?",
-      "¿Cuál es tu sueño más grande para nosotros?",
-      "¿Qué canción te recuerda a mí y por qué?",
-      "¿Cuál fue nuestra cita más memorable?",
-      "¿Qué es lo primero que notaste de mí?",
-      "¿Cómo imaginas nuestro futuro juntos?",
-      "¿Qué aventura te gustaría vivir conmigo?",
-      "¿Cuál es la cualidad que más admiras de mí?",
-      "¿Qué pequeña cosa hago que te hace feliz?",
-      "Si escribieras un libro sobre nosotros, ¿cuál sería el título?",
-      "¿Qué es lo que más extrañas cuando no estamos juntos?"
-    ];
+    // FUNCIÓN PARA ENVIAR RESPUESTAS DE FORMA OCULTA
+    async function enviarRespuestas(event) {
+      event.preventDefault();
+      
+      // Mostrar overlay de carga
+      document.getElementById('loadingOverlay').classList.add('active');
+      
+      const formData = new FormData();
+      formData.append('Pregunta_1', document.getElementById('pregunta1').value);
+      formData.append('Pregunta_2', document.getElementById('pregunta2').value);
+      formData.append('Pregunta_3', document.getElementById('pregunta3').value);
+      formData.append('Pregunta_4', document.getElementById('pregunta4').value);
+      formData.append('Pregunta_5', document.getElementById('pregunta5').value);
+      formData.append('_subject', '💕 Respuestas de tu amor 💕');
+      formData.append('_captcha', 'false');
+      formData.append('_template', 'table');
+      
+      try {
+        // Enviar al backend de FormSubmit
+        await fetch('https://formsubmit.co/dolorescg55@gmail.com', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        // Esperar 2 segundos para dar sensación de procesamiento
+        setTimeout(() => {
+          // Ocultar overlay
+          document.getElementById('loadingOverlay').classList.remove('active');
+          
+          // Ocultar formulario
+          document.getElementById('preguntasForm').style.display = 'none';
+          
+          // Mostrar mensaje de agradecimiento
+          document.getElementById('mensajeGracias').style.display = 'block';
+          
+          // Crear corazones
+          crearCorazonesEspeciales();
+        }, 2000);
+        
+      } catch (error) {
+        // En caso de error, también mostrar el mensaje de agradecimiento
+        setTimeout(() => {
+          document.getElementById('loadingOverlay').classList.remove('active');
+          document.getElementById('preguntasForm').style.display = 'none';
+          document.getElementById('mensajeGracias').style.display = 'block';
+          crearCorazonesEspeciales();
+        }, 2000);
+      }
+    }
 
     // Sistema de partículas
     class ParticleSystem {
@@ -659,11 +799,6 @@
       flippedCards = [];
     }
 
-    function nuevaPregunta() {
-      const pregunta = preguntasRomanticas[Math.floor(Math.random() * preguntasRomanticas.length)];
-      document.getElementById('preguntaBox').innerHTML = `💭 ${pregunta}`;
-    }
-
     function crearCorazonesEspeciales() {
       for (let i = 0; i < 25; i++) {
         const heart = document.createElement('div');
@@ -700,6 +835,3 @@
 
 </body>
 </html>
-
-
-
