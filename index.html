@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Belén 🌼</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="fondo-neon"></div>
+
+<header class="hero" id="hero">
+  <div class="pretitulo">21 de septiembre</div>
+  <h1>Para Belén 🌼</h1>
+  <p class="subtitle">No pude cruzar la distancia para dártelas en persona, pero aquí están, tan amarillas y sinceras como lo que siento.</p>
+  <div class="flecha-abajo">↓</div>
+</header>
+
+<section>
+  <div class="carta">
+    <p>Sé que no puedo darte las flores porque la distancia nos lo impide, y sé que esto no es lo que te mereces, pero por ahora es lo más parecido que te puedo dar, aunque no sea lo mejor para ti.</p>
+    <div class="firma">Con todo mi cariño, para ti.</div>
+  </div>
+
+  <div class="distancia">
+    <div class="fila-distancia">
+      <span>🧡</span>
+      <div class="linea"></div>
+      <span style="font-size:2rem; filter: drop-shadow(0 0 12px #FFEA00);">🌼</span>
+      <div class="linea"></div>
+      <span>🧡</span>
+    </div>
+    <p style="margin-top:16px; font-size:0.95rem; color:#d9c98a;">La distancia se mide en kilómetros, no en lo que siento por ti.</p>
+  </div>
+
+  <div class="fecha-box">
+    <div class="etiqueta">Desde ese día</div>
+    <div class="numero" id="dias-contador">--</div>
+    <div class="etiqueta">días juntos, aunque sea lejos</div>
+    <div class="etiqueta" style="margin-top:10px; font-size:0.85rem;">09 / 08 / 2026</div>
+  </div>
+
+  <div class="ramo">🌻🌼🌷🌼🌻</div>
+</section>
+
+<section id="carta-secreta-seccion">
+  <div class="sobre-contenedor">
+    <div class="sobre" id="sobre">
+      <div class="sobre-solapa"></div>
+      <div class="sobre-cuerpo">
+        <span class="sobre-sello">💌</span>
+      </div>
+    </div>
+    <p class="instruccion-sobre" id="instruccion-sobre">Toca el sobre para abrir una carta secreta</p>
+  </div>
+
+  <div class="carta-secreta" id="carta-secreta">
+    <p>
+      <!-- CAMBIA ESTE TEXTO por tu mensaje secreto -->
+      Belén, hay algo más que quiero decirte: cada día que pasa contando desde el 09/08/2026 confirmo que la distancia no le ha ganado a lo que siento. Gracias por seguir aquí, aunque sea a través de una pantalla.
+    </p>
+    <button id="cerrar-carta">Cerrar carta 🌼</button>
+  </div>
+</section>
+
+<footer>
+  Hecho con <span class="corazon">♥</span> para Belén · 21 de septiembre
+</footer>
+
+<!-- La canción debe llamarse cancion.mp3 y estar en la misma carpeta que este archivo -->
+<audio id="audio-fondo" loop>
+  <source src="cancion.mp3" type="audio/mpeg">
+</audio>
+<button id="musica-flotante" title="Reproducir musica">🎵</button>
+<div id="musica-aviso">Toca para reproducir la música 🎶</div>
+
+<script src="script.js"></script>
+</body>
+</html>
