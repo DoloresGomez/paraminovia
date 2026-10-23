@@ -1,80 +1,127 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Para Belén 🌼</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Para ti</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Para ti">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#ff4d6d">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,sans-serif; background:#fff0f3; color:#333;
+           padding: env(safe-area-inset-top) 0 90px; }
+    h1, h2 { text-align:center; color:#ff4d6d; }
+
+    .galeria { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; padding:12px;
+               max-width:700px; margin:0 auto; }
+    .galeria img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:12px; }
+
+    #videos { padding:12px; display:grid; gap:16px; }
+    #videos video {
+      width: 100%;
+      max-width: 420px;
+      max-height: 70vh;
+      margin: 0 auto;
+      display: block;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #000;
+    }
+
+    #visor { display:none; position:fixed; inset:0; background:rgba(0,0,0,.9);
+             align-items:center; justify-content:center; z-index:10; }
+    #visor img { max-width:95%; max-height:90%; border-radius:8px; }
+
+    #reproductor { position:fixed; bottom:0; left:0; right:0; background:#ff4d6d; color:#fff;
+                   display:flex; align-items:center; justify-content:space-between;
+                   padding:12px 20px calc(12px + env(safe-area-inset-bottom)); z-index:5; }
+    #reproductor button { background:#fff; color:#ff4d6d; border:0; border-radius:50%;
+                          width:44px; height:44px; font-size:20px; }
+
+    #bienvenida { position:fixed; inset:0; z-index:20; background:#ff4d6d; color:#fff;
+                  display:flex; flex-direction:column; align-items:center; justify-content:center;
+                  text-align:center; padding:20px; }
+    #bienvenida h1 { color:#fff; font-size:2rem; }
+    #bienvenida button { margin-top:20px; padding:14px 32px; font-size:1.1rem; border:0;
+                         border-radius:30px; background:#fff; color:#ff4d6d; }
+  </style>
 </head>
 <body>
 
-<div id="fondo-neon"></div>
-
-<header class="hero" id="hero">
-  <div class="pretitulo">21 de septiembre</div>
-  <h1>Para Belén 🌼</h1>
-  <p class="subtitle">No pude cruzar la distancia para dártelas en persona, pero aquí están, tan amarillas y sinceras como lo que siento.</p>
-  <div class="flecha-abajo">↓</div>
-</header>
-
-<section>
-  <div class="carta">
-    <p>Sé que no puedo darte las flores porque la distancia nos lo impide, y sé que esto no es lo que te mereces, pero por ahora es lo más parecido que te puedo dar, aunque no sea lo mejor para ti.</p>
-    <div class="firma">Con todo mi cariño, para ti.</div>
+  <div id="bienvenida">
+    <h1>Hola amor ❤️</h1>
+    <p>Hice esto para ti</p>
+    <button id="entrar">Abrir</button>
   </div>
 
-  <div class="distancia">
-    <div class="fila-distancia">
-      <span>🧡</span>
-      <div class="linea"></div>
-      <span style="font-size:2rem; filter: drop-shadow(0 0 12px #FFEA00);">🌼</span>
-      <div class="linea"></div>
-      <span>🧡</span>
-    </div>
-    <p style="margin-top:16px; font-size:0.95rem; color:#d9c98a;">La distancia se mide en kilómetros, no en lo que siento por ti.</p>
+  <h1>Nuestros recuerdos ❤️</h1>
+  <div class="galeria" id="galeria"></div>
+
+  <h2>Nuestros videos 🎬</h2>
+  <div id="videos"></div>
+
+  <div id="visor"><img id="visor-img" alt=""></div>
+
+  <div id="reproductor">
+    <span>🎵 Nuestra canción</span>
+    <button id="btn">▶</button>
   </div>
 
-  <div class="fecha-box">
-    <div class="etiqueta">Desde ese día</div>
-    <div class="numero" id="dias-contador">--</div>
-    <div class="etiqueta">días juntos, aunque sea lejos</div>
-    <div class="etiqueta" style="margin-top:10px; font-size:0.85rem;">09 / 08 / 2026</div>
-  </div>
+  <audio id="audio" src="musica/cancion.mp3" loop preload="none"></audio>
 
-  <div class="ramo">🌻🌼🌷🌼🌻</div>
-</section>
+  <script>
+    const fotos  = ['foto1.jpg', 'foto2.jpg', 'foto3.jpg', 'foto4.jpg'];
+    const videos = ['video1.mp4', 'video2.mp4', 'video3.mp4'];
 
-<section id="carta-secreta-seccion">
-  <div class="sobre-contenedor">
-    <div class="sobre" id="sobre">
-      <div class="sobre-solapa"></div>
-      <div class="sobre-cuerpo">
-        <span class="sobre-sello">💌</span>
-      </div>
-    </div>
-    <p class="instruccion-sobre" id="instruccion-sobre">Toca el sobre para abrir una carta secreta</p>
-  </div>
+    const audio = document.getElementById('audio');
+    const btn = document.getElementById('btn');
+    const galeria = document.getElementById('galeria');
+    const contVideos = document.getElementById('videos');
+    const visor = document.getElementById('visor');
+    const visorImg = document.getElementById('visor-img');
 
-  <div class="carta-secreta" id="carta-secreta">
-    <p>
-      <!-- CAMBIA ESTE TEXTO por tu mensaje secreto -->
-      Belén, hay algo más que quiero decirte: cada día que pasa contando desde el 09/08/2026 confirmo que la distancia no le ha ganado a lo que siento. Gracias por seguir aquí, aunque sea a través de una pantalla.
-    </p>
-    <button id="cerrar-carta">Cerrar carta 🌼</button>
-  </div>
-</section>
+    fotos.forEach(f => {
+      const img = document.createElement('img');
+      img.src = 'fotos/' + f;
+      img.loading = 'lazy';
+      img.alt = '';
+      img.onclick = () => { visorImg.src = img.src; visor.style.display = 'flex'; };
+      galeria.appendChild(img);
+    });
+    visor.onclick = () => visor.style.display = 'none';
 
-<footer>
-  Hecho con <span class="corazon">♥</span> para Belén · 21 de septiembre
-</footer>
+    videos.forEach(v => {
+      const el = document.createElement('video');
+      el.src = 'videos/' + v;
+      el.controls = true;
+      el.playsInline = true;
+      el.preload = 'metadata';
+      el.addEventListener('play', () => {
+        if (!audio.paused) {
+          audio.pause();
+          btn.textContent = '▶';
+        }
+      });
+      contVideos.appendChild(el);
+    });
 
-<!-- La canción debe llamarse cancion.mp3 y estar en la misma carpeta que este archivo -->
-<audio id="audio-fondo" loop>
-  <source src="cancion.mp3" type="audio/mpeg">
-</audio>
-<button id="musica-flotante" title="Reproducir musica">🎵</button>
-<div id="musica-aviso">Toca para reproducir la música 🎶</div>
+    btn.onclick = () => {
+      if (audio.paused) { audio.play(); btn.textContent = '⏸'; }
+      else { audio.pause(); btn.textContent = '▶'; }
+    };
 
-<script src="script.js"></script>
+    document.getElementById('entrar').onclick = () => {
+      audio.play().then(() => { btn.textContent = '⏸'; }).catch(() => {});
+      document.getElementById('bienvenida').style.display = 'none';
+    };
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 </body>
 </html>
